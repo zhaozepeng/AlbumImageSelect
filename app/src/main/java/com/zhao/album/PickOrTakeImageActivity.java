@@ -316,16 +316,9 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         AlbumBitmapCacheHelper.getInstance().removeAllThreads();
         //点击的全部图片
-        if (i == 0){
-            if(!(currentShowPosition == -1)){
-                currentShowPosition = -1;
-                reloadDataByChooseDirectory();
-            }
-        }else{
-            if(!(currentShowPosition == i-1)){
-                currentShowPosition = i-1;
-                reloadDataByChooseDirectory();
-            }
+        if(!(currentShowPosition == i-1)){
+            currentShowPosition = i-1;
+            reloadDataByChooseDirectory();
         }
     }
 
@@ -342,7 +335,16 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         AlbumBitmapCacheHelper.getInstance().removeAllThreads();
         gridView.setAdapter(adapter);
         gridView.smoothScrollToPosition(0);
-        listviewAdapter.notifyDataSetChanged();
+        View v = listView.findViewWithTag("picked");
+        if (v != null) {
+            v.setVisibility(View.GONE);
+            v.setTag(null);
+        }
+        v = (View) listView.findViewWithTag(currentShowPosition + 1).getParent().getParent();
+        if (v != null) {
+            v.findViewById(R.id.iv_directory_check).setVisibility(View.VISIBLE);
+            v.findViewById(R.id.iv_directory_check).setTag("picked");
+        }
         reverseanimation.start();
     }
 
@@ -637,6 +639,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
             }
             final ListViewHolder holder = (ListViewHolder) view.getTag();
             holder.position = i;
+            holder.tv_directory_name.setTag(i);
             String path = null;
             //全部图片
             if(getItemViewType(i) == 0){
@@ -648,15 +651,19 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 //获取第0个位置的图片，即第一张图片展示
                 path = imageDirectories.get(0).images.getImagePath(0);
                 if(currentShowPosition == -1){
+                    holder.iv_directory_check.setTag("picked");
                     holder.iv_directory_check.setVisibility(View.VISIBLE);
                 }else{
+                    holder.iv_directory_check.setTag(null);
                     holder.iv_directory_check.setVisibility(View.INVISIBLE);
                 }
             }else{
                 holder.tv_directory_nums.setText(imageDirectories.get(i-1).images.getImageCounts() +"张");
                 if(currentShowPosition == i-1){
+                    holder.iv_directory_check.setTag("picked");
                     holder.iv_directory_check.setVisibility(View.VISIBLE);
                 }else{
+                    holder.iv_directory_check.setTag(null);
                     holder.iv_directory_check.setVisibility(View.INVISIBLE);
                 }
                 holder.tv_directory_name.setText(new File(imageDirectories.get(i-1).directoryPath).getName()+"   ");

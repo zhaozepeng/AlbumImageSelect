@@ -14,7 +14,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * @author: zzp(zhao_zepeng@hotmail.com)
  * @since: 2015-06-22
- * Description: cat
+ * Description:
  */
 public class CommonUtil {
     /**
