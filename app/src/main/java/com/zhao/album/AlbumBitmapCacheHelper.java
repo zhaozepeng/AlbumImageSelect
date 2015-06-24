@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 import android.view.WindowManager;
 
 import java.io.ByteArrayOutputStream;
@@ -91,6 +92,7 @@ public class AlbumBitmapCacheHelper {
         Bitmap bitmap = getBitmapFromCache(path, width, height);
         //如果能够从缓存中获取符合要求的图片，则直接回调
         if (bitmap != null) {
+
         } else {
             decodeBitmapFromPath(path, width, height, callback, objects);
         }
@@ -185,6 +187,12 @@ public class AlbumBitmapCacheHelper {
                             }
                         }
 //                    }
+                    }else{
+                        //从temp目录加载出来的图片也要放入到cache中
+                        if (bitmap != null && cache!=null) {
+                            bitmap = centerSquareScaleBitmap(bitmap, ((bitmap.getWidth() > bitmap.getHeight()) ? bitmap.getHeight() : bitmap.getWidth()));
+                            cache.put(path, bitmap);
+                        }
                     }
                 }
                 Message msg = Message.obtain();
@@ -228,8 +236,8 @@ public class AlbumBitmapCacheHelper {
      */
     private int computeScale(BitmapFactory.Options options, int width, int height) {
         if (options == null) return 1;
-        int widthScale = Math.round((float) options.outWidth / (float) width);
-        int heightScale = Math.round((float) options.outHeight / (float) height);
+        int widthScale = (int)((float) options.outWidth / (float) width);
+        int heightScale = (int)((float) options.outHeight / (float) height);
         //选择缩放比例较大的那个
         int scale = (widthScale > heightScale ? widthScale : heightScale);
         if (scale < 1) scale = 1;
@@ -249,7 +257,10 @@ public class AlbumBitmapCacheHelper {
             return cache.get(path + "original");
         }
         Bitmap temp = cache.get(path);
-        if (temp != null && temp.getWidth() >= width && temp.getHeight() >= height) return temp;
+        if (temp != null)
+            Log.e("zhao", "get bitmap from cache");
+        if (temp != null && (temp.getWidth() >= width || temp.getHeight() >= height))
+            return temp;
         return null;
     }
 
