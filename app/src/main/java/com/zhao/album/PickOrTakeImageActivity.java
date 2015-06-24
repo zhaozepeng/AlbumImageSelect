@@ -965,10 +965,9 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
      */
     private ArrayList<SingleImageModel> getChoosePicFromList(){
         ArrayList<SingleImageModel> list = new ArrayList<SingleImageModel>();
-        for (SingleImageModel model : allImages){
-            if (model.isPicked){
-                list.add(model);
-            }
+        for (String path : picklist){
+            SingleImageModel model = new SingleImageModel(path, true, 0, 0);
+            list.add(model);
         }
         return list;
     }
