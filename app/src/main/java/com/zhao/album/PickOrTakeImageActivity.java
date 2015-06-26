@@ -824,13 +824,13 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 case R.id.iv_pick_or_not:
                     toggleImageDirectoryModelStateFromMapById(position);
                     if (getImageDirectoryModelStateFromMapById(position)){
-                        picklist.add(getImageDirectoryModelUrlFromMapById(holder.position));
                         if(currentPicNums == picNums){
                             toggleImageDirectoryModelStateFromMapById(position);
                             Toast.makeText(PickOrTakeImageActivity.this,
                                     String.format(getString(R.string.choose_pic_num_out_of_index), picNums), Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        picklist.add(getImageDirectoryModelUrlFromMapById(holder.position));
                         holder.iv_pick_or_not.setImageResource(R.drawable.image_choose);
                         holder.v_gray_masking.setVisibility(View.VISIBLE);
                         currentPicNums++;
