@@ -166,7 +166,6 @@ public class ZoomImageView extends ImageView {
         int screenHeight = ((WindowManager) (AppContext.getInstance().getSystemService(Context.WINDOW_SERVICE))).getDefaultDisplay().getHeight();
         sourceBitmap = resizeImage(sourceBitmap, screenWidth, screenHeight);
         invalidate();
-        isInited  = true;
     }
 
     public Bitmap resizeImage(Bitmap bitmap, int w, int h) {
@@ -406,6 +405,7 @@ public class ZoomImageView extends ImageView {
      */
     private void initBitmap(Canvas canvas) {
         if (sourceBitmap != null) {
+            isInited  = true;
             matrix.reset();
             int bitmapWidth = sourceBitmap.getWidth();
             int bitmapHeight = sourceBitmap.getHeight();
