@@ -92,7 +92,7 @@ public class AlbumBitmapCacheHelper {
         Bitmap bitmap = getBitmapFromCache(path, width, height);
         //如果能够从缓存中获取符合要求的图片，则直接回调
         if (bitmap != null) {
-
+            Log.e("zhao", "get bitmap from cache");
         } else {
             decodeBitmapFromPath(path, width, height, callback, objects);
         }
@@ -134,9 +134,6 @@ public class AlbumBitmapCacheHelper {
                         options.inSampleSize *= 2;
                         bitmap = BitmapFactory.decodeFile(path, options);
                     }
-                    //原图存入要和普通的区别开
-                    if (bitmap != null && cache!=null)
-                        cache.put(path + "original", bitmap);
                 } else {
                     //返回小图，第一步，从temp目录下取，如果取不到，
                     // 第二步，计算samplesize,如果samplesize > 4,
@@ -166,7 +163,6 @@ public class AlbumBitmapCacheHelper {
                         //获取之后，放入缓存，以便下次继续使用
                         if (bitmap != null && cache!=null) {
                             bitmap = centerSquareScaleBitmap(bitmap, ((bitmap.getWidth() > bitmap.getHeight()) ? bitmap.getHeight() : bitmap.getWidth()));
-                            cache.put(path, bitmap);
                         }
                         //第三步,如果缩放比例大于4，该图的加载会非常慢，所以将该图保存到临时目录下以便下次的快速加载
                         if (options.inSampleSize >= 4) {
@@ -191,10 +187,10 @@ public class AlbumBitmapCacheHelper {
                         //从temp目录加载出来的图片也要放入到cache中
                         if (bitmap != null && cache!=null) {
                             bitmap = centerSquareScaleBitmap(bitmap, ((bitmap.getWidth() > bitmap.getHeight()) ? bitmap.getHeight() : bitmap.getWidth()));
-                            cache.put(path, bitmap);
                         }
                     }
                 }
+                cache.put(path +"_"+ width +"_"+height, bitmap);
                 Message msg = Message.obtain();
                 msg.obj = bitmap;
                 handler.sendMessage(msg);
@@ -253,15 +249,7 @@ public class AlbumBitmapCacheHelper {
      * @return 图片value
      */
     private Bitmap getBitmapFromCache(final String path, int width, int height) {
-        if (width == 0 || height == 0) {
-            return cache.get(path + "original");
-        }
-        Bitmap temp = cache.get(path);
-        if (temp != null)
-            Log.e("zhao", "get bitmap from cache");
-        if (temp != null && (temp.getWidth() >= width || temp.getHeight() >= height))
-            return temp;
-        return null;
+        return cache.get(path +"_"+ width +"_"+height);
     }
 
     /**
