@@ -148,7 +148,7 @@ public class PickBigImagesActivity extends Activity implements ViewPager.OnPageC
                 Toast.makeText(this, String.format(getString(R.string.choose_pic_num_out_of_index), total_pics), Toast.LENGTH_SHORT).show();
                 return ;
             }
-            picklist.add(getPathFromList(currentPic)); 
+            picklist.add(getPathFromList(currentPic));
             last_pics --;
             iv_choose_state.setBackgroundResource(R.drawable.image_choose);
             if(last_pics == total_pics-1){
