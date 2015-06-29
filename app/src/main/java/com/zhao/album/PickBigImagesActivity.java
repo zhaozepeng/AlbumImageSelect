@@ -135,7 +135,6 @@ public class PickBigImagesActivity extends Activity implements ViewPager.OnPageC
 
     @Override
     public void onPageScrollStateChanged(int state) {
-
     }
 
     @Override
