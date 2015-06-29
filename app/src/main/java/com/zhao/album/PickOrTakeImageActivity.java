@@ -588,7 +588,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
             return "今天";
         }else if((System.currentTimeMillis()-time) < (mDayWeek)*24*60*60*1000){
             return "本周";
-        }else if((System.currentTimeMillis()-time) < (((mWeek-1)*7+mDayWeek))*24*60*60*1000){
+        }else if((System.currentTimeMillis()-time) < ((long)((mWeek-1)*7+mDayWeek))*24*60*60*1000){
             return "这个月";
         }else{
             SimpleDateFormat format = new SimpleDateFormat("yyyy/MM", java.util.Locale.getDefault());
