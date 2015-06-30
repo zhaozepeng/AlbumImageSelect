@@ -2,6 +2,7 @@ package com.zhao.album;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -11,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -116,6 +118,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         initData();
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void initView() {
         gridView = (GridView) findViewById(R.id.gv_content);
         gridView.setOnTouchListener(this);
@@ -137,38 +140,42 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
 
 //        animation = new TranslateAnimation(0, 0, 0, -CommonUtil.dip2px(this, 300));
 //        reverseanimation = new TranslateAnimation(0, 0, -CommonUtil.dip2px(this, 300), 0);
-        animation = ObjectAnimator.ofInt(listView, "bottomMargin", -CommonUtil.dip2px(this, 400), 0);
-        animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                int value = (Integer) valueAnimator.getAnimatedValue();
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
-                rl_choose_directory.setAlpha(1 - Math.abs(value / CommonUtil.dip2px(PickOrTakeImageActivity.this, 400)));
-                params.bottomMargin = value;
-                listView.setLayoutParams(params);
-                listView.invalidate();
-                rl_choose_directory.invalidate();
-            }
-        });
-        animation.setDuration(500);
-
-        reverseanimation = ObjectAnimator.ofInt(listView, "bottomMargin", 0, -CommonUtil.dip2px(this, 400));
-        reverseanimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                int value = (Integer) valueAnimator.getAnimatedValue();
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
-                params.bottomMargin = value;
-                listView.setLayoutParams(params);
-                rl_choose_directory.setAlpha(1 - Math.abs(value / CommonUtil.dip2px(PickOrTakeImageActivity.this, 400)));
-                if (value <= -CommonUtil.dip2px(PickOrTakeImageActivity.this, 300)) {
-                    rl_choose_directory.setVisibility(View.GONE);
+        if (Build.VERSION.SDK_INT < 11){
+            // no animation cause low SDK version
+        }else{
+            animation = ObjectAnimator.ofInt(listView, "bottomMargin", -CommonUtil.dip2px(this, 400), 0);
+            animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    int value = (Integer) valueAnimator.getAnimatedValue();
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
+                    rl_choose_directory.setAlpha(1 - Math.abs(value / CommonUtil.dip2px(PickOrTakeImageActivity.this, 400)));
+                    params.bottomMargin = value;
+                    listView.setLayoutParams(params);
+                    listView.invalidate();
+                    rl_choose_directory.invalidate();
                 }
-                listView.invalidate();
-                rl_choose_directory.invalidate();
-            }
-        });
-        reverseanimation.setDuration(500);
+            });
+            animation.setDuration(500);
+
+            reverseanimation = ObjectAnimator.ofInt(listView, "bottomMargin", 0, -CommonUtil.dip2px(this, 400));
+            reverseanimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    int value = (Integer) valueAnimator.getAnimatedValue();
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
+                    params.bottomMargin = value;
+                    listView.setLayoutParams(params);
+                    rl_choose_directory.setAlpha(1 - Math.abs(value / CommonUtil.dip2px(PickOrTakeImageActivity.this, 400)));
+                    if (value <= -CommonUtil.dip2px(PickOrTakeImageActivity.this, 300)) {
+                        rl_choose_directory.setVisibility(View.GONE);
+                    }
+                    listView.invalidate();
+                    rl_choose_directory.invalidate();
+                }
+            });
+            reverseanimation.setDuration(500);
+        }
 
         alphaAnimation.setDuration(1000);
         alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -279,11 +286,23 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         switch (view.getId()){
             case R.id.tv_choose_image_directory:
 //                window.showAsDropDown(tv_choose_image_directory);
-                if(rl_choose_directory.getVisibility() == View.VISIBLE){
-                    reverseanimation.start();
+                if (Build.VERSION.SDK_INT < 11){
+                    if (rl_choose_directory.getVisibility() == View.VISIBLE) {
+                        rl_choose_directory.setVisibility(View.GONE);
+                    } else {
+                        rl_choose_directory.setVisibility(View.VISIBLE);
+                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
+                        params.bottomMargin = 0;
+                        listView.setLayoutParams(params);
+                        ((ViewGroup)(listView.getParent())).invalidate();
+                    }
                 }else {
-                    rl_choose_directory.setVisibility(View.VISIBLE);
-                    animation.start();
+                    if (rl_choose_directory.getVisibility() == View.VISIBLE) {
+                        reverseanimation.start();
+                    } else {
+                        rl_choose_directory.setVisibility(View.VISIBLE);
+                        animation.start();
+                    }
                 }
                 break;
             case R.id.tv_preview:
@@ -300,11 +319,23 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 }
                 break;
             case R.id.rl_choose_directory:
-                if(rl_choose_directory.getVisibility() == View.VISIBLE){
-                    reverseanimation.start();
+                if (Build.VERSION.SDK_INT < 11){
+                    if (rl_choose_directory.getVisibility() == View.VISIBLE) {
+                        rl_choose_directory.setVisibility(View.GONE);
+                    } else {
+                        rl_choose_directory.setVisibility(View.VISIBLE);
+                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
+                        params.bottomMargin = 0;
+                        listView.setLayoutParams(params);
+                        ((ViewGroup)(listView.getParent())).invalidate();
+                    }
                 }else {
-                    rl_choose_directory.setVisibility(View.VISIBLE);
-                    animation.start();
+                    if (rl_choose_directory.getVisibility() == View.VISIBLE) {
+                        reverseanimation.start();
+                    } else {
+                        rl_choose_directory.setVisibility(View.VISIBLE);
+                        animation.start();
+                    }
                 }
                 break;
             default:
@@ -345,13 +376,21 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
             v.findViewById(R.id.iv_directory_check).setVisibility(View.VISIBLE);
             v.findViewById(R.id.iv_directory_check).setTag("picked");
         }
-        reverseanimation.start();
+        if (Build.VERSION.SDK_INT < 11){
+            rl_choose_directory.setVisibility(View.GONE);
+        }else {
+            reverseanimation.start();
+        }
     }
 
     @Override
     public void onBackPressed() {
         if(rl_choose_directory.getVisibility() == View.VISIBLE){
-            reverseanimation.start();
+            if (Build.VERSION.SDK_INT < 11){
+                rl_choose_directory.setVisibility(View.GONE);
+            }else {
+                reverseanimation.start();
+            }
         }else {
             super.onBackPressed();
         }
@@ -416,6 +455,8 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
 
         @Override
         public void handleMessage(Message msg) {
+            if (activity.get() == null)
+                return;
             if (activity.get().gridView.getAdapter() == null){
                 activity.get().gridView.setAdapter(activity.get().adapter);
             }else
@@ -562,7 +603,6 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
     private void showTimeLine(long date){
         alphaAnimation.cancel();
         rl_date.setVisibility(View.VISIBLE);
-        rl_date.setAlpha(1.0f);
         tv_date.setText(calculateShowTime(date*1000));
     }
 

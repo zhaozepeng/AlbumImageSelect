@@ -51,6 +51,14 @@ public class AlbumBitmapCacheHelper {
 //        cr = AppContext.getInstance().getContentResolver();
     }
 
+    /**
+     * 释放所有的内存
+     */
+    public void releaseAllSizeCache(){
+        cache.evictAll();
+        cache.resize(1);
+    }
+
     public void releaseHalfSizeCache() {
         cache.resize((int) (Runtime.getRuntime().maxMemory() / 1024 / 8));
     }
@@ -131,7 +139,7 @@ public class AlbumBitmapCacheHelper {
                     try {
                         bitmap = BitmapFactory.decodeFile(path, options);
                     } catch (OutOfMemoryError e) {
-                        options.inSampleSize *= 2;
+                        releaseAllSizeCache();
                         bitmap = BitmapFactory.decodeFile(path, options);
                     }
                 } else {
@@ -139,8 +147,9 @@ public class AlbumBitmapCacheHelper {
                     // 第二步，计算samplesize,如果samplesize > 4,
                     // 第三步则将压缩后的图片存入temp目录下，以便下次快速取出
                     String hash = CommonUtil.md5(path);
-                    if (!new File(CommonUtil.getDataPath()).exists())
-                        new File(CommonUtil.getDataPath()).mkdirs();
+                    File file = new File(CommonUtil.getDataPath());
+                    if (!file.exists())
+                        file.mkdirs();
                     //临时文件的文件名
                     String tempPath = CommonUtil.getDataPath() + hash + ".temp";
                     //如果该文件存在
@@ -167,7 +176,7 @@ public class AlbumBitmapCacheHelper {
                         //第三步,如果缩放比例大于4，该图的加载会非常慢，所以将该图保存到临时目录下以便下次的快速加载
                         if (options.inSampleSize >= 4) {
                             try {
-                                File file = new File(tempPath);
+                                file = new File(tempPath);
                                 if (!file.exists())
                                     file.createNewFile();
                                 FileOutputStream fos = new FileOutputStream(file);
@@ -190,7 +199,8 @@ public class AlbumBitmapCacheHelper {
                         }
                     }
                 }
-                cache.put(path +"_"+ width +"_"+height, bitmap);
+                if (bitmap != null && cache!=null)
+                    cache.put(path +"_"+ width +"_"+height, bitmap);
                 Message msg = Message.obtain();
                 msg.obj = bitmap;
                 handler.sendMessage(msg);
