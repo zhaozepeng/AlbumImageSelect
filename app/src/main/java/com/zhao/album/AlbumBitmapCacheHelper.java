@@ -152,8 +152,10 @@ public class AlbumBitmapCacheHelper {
                         file.mkdirs();
                     //临时文件的文件名
                     String tempPath = CommonUtil.getDataPath() + hash + ".temp";
-                    //如果该文件存在
-                    if (new File(tempPath).exists())
+                    File picFile = new File(path);
+                    File tempFile = new File(tempPath);
+                    //如果该文件存在,并且temp文件的创建时间要原文件之后
+                    if (tempFile.exists() && (picFile.lastModified() <= tempFile.lastModified()))
                         bitmap = BitmapFactory.decodeFile(tempPath);
                     //无法在临时文件的缩略图目录找到该图片，于是执行第二步
                     if (bitmap == null) {
@@ -179,6 +181,10 @@ public class AlbumBitmapCacheHelper {
                                 file = new File(tempPath);
                                 if (!file.exists())
                                     file.createNewFile();
+                                else {
+                                    file.delete();
+                                    file.createNewFile();
+                                }
                                 FileOutputStream fos = new FileOutputStream(file);
                                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
