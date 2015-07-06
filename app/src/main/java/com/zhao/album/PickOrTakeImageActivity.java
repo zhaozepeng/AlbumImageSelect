@@ -266,8 +266,16 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                     while (cursor.moveToNext()){
                         SingleImageModel singleImageModel = new SingleImageModel();
                         singleImageModel.path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                        singleImageModel.date = Long.parseLong(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED)));
-                        singleImageModel.id = Long.parseLong(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)));
+                        try {
+                            singleImageModel.date = Long.parseLong(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED)));
+                        }catch (NumberFormatException e){
+                            singleImageModel.date  = System.currentTimeMillis();
+                        }
+                        try {
+                            singleImageModel.id = Long.parseLong(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)));
+                        }catch (NumberFormatException e){
+                            singleImageModel.id = 0;
+                        }
                         allImages.add(singleImageModel);
 
                         //存入按照目录分配的list

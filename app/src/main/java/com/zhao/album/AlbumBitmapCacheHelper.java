@@ -237,7 +237,7 @@ public class AlbumBitmapCacheHelper {
             result = Bitmap.createBitmap(bitmap, xTopLeft, yTopLeft, edgeLength, edgeLength);
             bitmap.recycle();
         } catch (Exception e) {
-            return null;
+            return result;
         }
 
         return result;
