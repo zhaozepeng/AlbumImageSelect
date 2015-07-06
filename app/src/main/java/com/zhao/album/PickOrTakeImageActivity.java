@@ -291,63 +291,61 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.tv_choose_image_directory:
-//                window.showAsDropDown(tv_choose_image_directory);
-                if (Build.VERSION.SDK_INT < 11){
-                    if (rl_choose_directory.getVisibility() == View.VISIBLE) {
-                        rl_choose_directory.setVisibility(View.GONE);
-                    } else {
-                        rl_choose_directory.setVisibility(View.VISIBLE);
-                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
-                        params.bottomMargin = 0;
-                        listView.setLayoutParams(params);
-                        ((ViewGroup)(listView.getParent())).invalidate();
-                    }
-                }else {
-                    if (rl_choose_directory.getVisibility() == View.VISIBLE) {
-                        reverseanimation.start();
-                    } else {
-                        rl_choose_directory.setVisibility(View.VISIBLE);
-                        animation.start();
-                    }
+        int i = view.getId();
+        if (i == R.id.tv_choose_image_directory) {//                window.showAsDropDown(tv_choose_image_directory);
+            if (Build.VERSION.SDK_INT < 11) {
+                if (rl_choose_directory.getVisibility() == View.VISIBLE) {
+                    rl_choose_directory.setVisibility(View.GONE);
+                } else {
+                    rl_choose_directory.setVisibility(View.VISIBLE);
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
+                    params.bottomMargin = 0;
+                    listView.setLayoutParams(params);
+                    ((ViewGroup) (listView.getParent())).invalidate();
                 }
-                break;
-            case R.id.tv_preview:
-                if (currentPicNums > 0){
-                    Intent intent = new Intent();
-                    intent.setClass(PickOrTakeImageActivity.this, PickBigImagesActivity.class);
-                    intent.putExtra(PickBigImagesActivity.EXTRA_DATA, getChoosePicFromList());
-                    intent.putExtra(PickBigImagesActivity.EXTRA_ALL_PICK_DATA, picklist);
-                    intent.putExtra(PickBigImagesActivity.EXTRA_CURRENT_PIC, 0);
-                    intent.putExtra(PickBigImagesActivity.EXTRA_LAST_PIC, picNums - currentPicNums);
-                    intent.putExtra(PickBigImagesActivity.EXTRA_TOTAL_PIC, picNums);
-                    startActivityForResult(intent, CODE_FOR_PIC_BIG_PREVIEW);
-                    AlbumBitmapCacheHelper.getInstance().releaseHalfSizeCache();
+            } else {
+                if (rl_choose_directory.getVisibility() == View.VISIBLE) {
+                    reverseanimation.start();
+                } else {
+                    rl_choose_directory.setVisibility(View.VISIBLE);
+                    animation.start();
                 }
-                break;
-            case R.id.rl_choose_directory:
-                if (Build.VERSION.SDK_INT < 11){
-                    if (rl_choose_directory.getVisibility() == View.VISIBLE) {
-                        rl_choose_directory.setVisibility(View.GONE);
-                    } else {
-                        rl_choose_directory.setVisibility(View.VISIBLE);
-                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
-                        params.bottomMargin = 0;
-                        listView.setLayoutParams(params);
-                        ((ViewGroup)(listView.getParent())).invalidate();
-                    }
-                }else {
-                    if (rl_choose_directory.getVisibility() == View.VISIBLE) {
-                        reverseanimation.start();
-                    } else {
-                        rl_choose_directory.setVisibility(View.VISIBLE);
-                        animation.start();
-                    }
+            }
+
+        } else if (i == R.id.tv_preview) {
+            if (currentPicNums > 0) {
+                Intent intent = new Intent();
+                intent.setClass(PickOrTakeImageActivity.this, PickBigImagesActivity.class);
+                intent.putExtra(PickBigImagesActivity.EXTRA_DATA, getChoosePicFromList());
+                intent.putExtra(PickBigImagesActivity.EXTRA_ALL_PICK_DATA, picklist);
+                intent.putExtra(PickBigImagesActivity.EXTRA_CURRENT_PIC, 0);
+                intent.putExtra(PickBigImagesActivity.EXTRA_LAST_PIC, picNums - currentPicNums);
+                intent.putExtra(PickBigImagesActivity.EXTRA_TOTAL_PIC, picNums);
+                startActivityForResult(intent, CODE_FOR_PIC_BIG_PREVIEW);
+                AlbumBitmapCacheHelper.getInstance().releaseHalfSizeCache();
+            }
+
+        } else if (i == R.id.rl_choose_directory) {
+            if (Build.VERSION.SDK_INT < 11) {
+                if (rl_choose_directory.getVisibility() == View.VISIBLE) {
+                    rl_choose_directory.setVisibility(View.GONE);
+                } else {
+                    rl_choose_directory.setVisibility(View.VISIBLE);
+                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) listView.getLayoutParams();
+                    params.bottomMargin = 0;
+                    listView.setLayoutParams(params);
+                    ((ViewGroup) (listView.getParent())).invalidate();
                 }
-                break;
-            default:
-                break;
+            } else {
+                if (rl_choose_directory.getVisibility() == View.VISIBLE) {
+                    reverseanimation.start();
+                } else {
+                    rl_choose_directory.setVisibility(View.VISIBLE);
+                    animation.start();
+                }
+            }
+
+        } else {
         }
     }
 
@@ -856,55 +854,53 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         @Override
         public void onClick(View view) {
             int position = holder.position;
-            switch (view.getId()){
-                case R.id.iv_content:
-                    Intent intent = new Intent();
-                    intent.setClass(PickOrTakeImageActivity.this, PickBigImagesActivity.class);
-                    //TODO 这里由于涉及到intent传递的数据不能太大的问题，所以如果需要，这里需要进行另外的处理，写入到内存或者写入到文件中
-                    intent.putExtra(PickBigImagesActivity.EXTRA_DATA, getAllImagesFromCurrentDirectory());
-                    intent.putExtra(PickBigImagesActivity.EXTRA_ALL_PICK_DATA, picklist);
-                    intent.putExtra(PickBigImagesActivity.EXTRA_CURRENT_PIC, position);
-                    intent.putExtra(PickBigImagesActivity.EXTRA_LAST_PIC, picNums - currentPicNums);
-                    intent.putExtra(PickBigImagesActivity.EXTRA_TOTAL_PIC, picNums);
-                    startActivityForResult(intent, CODE_FOR_PIC_BIG);
-                    AlbumBitmapCacheHelper.getInstance().releaseHalfSizeCache();
-                    break;
-                case R.id.iv_pick_or_not:
-                    toggleImageDirectoryModelStateFromMapById(position);
-                    if (getImageDirectoryModelStateFromMapById(position)){
-                        if(currentPicNums == picNums){
-                            toggleImageDirectoryModelStateFromMapById(position);
-                            Toast.makeText(PickOrTakeImageActivity.this,
-                                    String.format(getString(R.string.choose_pic_num_out_of_index), picNums), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        picklist.add(getImageDirectoryModelUrlFromMapById(holder.position));
-                        holder.iv_pick_or_not.setImageResource(R.drawable.image_choose);
-                        holder.v_gray_masking.setVisibility(View.VISIBLE);
-                        currentPicNums++;
-                        if(currentPicNums == 1){
-                            btn_choose_finish.setTextColor(getResources().getColor(R.color.white));
-                        }
+            int i = view.getId();
+            if (i == R.id.iv_content) {
+                Intent intent = new Intent();
+                intent.setClass(PickOrTakeImageActivity.this, PickBigImagesActivity.class);
+                //TODO 这里由于涉及到intent传递的数据不能太大的问题，所以如果需要，这里需要进行另外的处理，写入到内存或者写入到文件中
+                intent.putExtra(PickBigImagesActivity.EXTRA_DATA, getAllImagesFromCurrentDirectory());
+                intent.putExtra(PickBigImagesActivity.EXTRA_ALL_PICK_DATA, picklist);
+                intent.putExtra(PickBigImagesActivity.EXTRA_CURRENT_PIC, position);
+                intent.putExtra(PickBigImagesActivity.EXTRA_LAST_PIC, picNums - currentPicNums);
+                intent.putExtra(PickBigImagesActivity.EXTRA_TOTAL_PIC, picNums);
+                startActivityForResult(intent, CODE_FOR_PIC_BIG);
+                AlbumBitmapCacheHelper.getInstance().releaseHalfSizeCache();
+
+            } else if (i == R.id.iv_pick_or_not) {
+                toggleImageDirectoryModelStateFromMapById(position);
+                if (getImageDirectoryModelStateFromMapById(position)) {
+                    if (currentPicNums == picNums) {
+                        toggleImageDirectoryModelStateFromMapById(position);
+                        Toast.makeText(PickOrTakeImageActivity.this, String.format(getString(R.string.choose_pic_num_out_of_index), picNums), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    picklist.add(getImageDirectoryModelUrlFromMapById(holder.position));
+                    holder.iv_pick_or_not.setImageResource(R.drawable.image_choose);
+                    holder.v_gray_masking.setVisibility(View.VISIBLE);
+                    currentPicNums++;
+                    if (currentPicNums == 1) {
+                        btn_choose_finish.setTextColor(getResources().getColor(R.color.white));
+                    }
+                    tv_preview.setText(String.format(getString(R.string.preview_with_num), currentPicNums));
+                    btn_choose_finish.setText(String.format(getString(R.string.choose_pic_finish_with_num), currentPicNums, picNums));
+                } else {
+                    picklist.remove(getImageDirectoryModelUrlFromMapById(holder.position));
+                    holder.iv_pick_or_not.setImageResource(R.drawable.image_not_chose);
+                    holder.v_gray_masking.setVisibility(View.GONE);
+                    currentPicNums--;
+                    if (currentPicNums == 0) {
+                        btn_choose_finish.setTextColor(getResources().getColor(R.color.found_description_color));
+                        btn_choose_finish.setText(getString(R.string.choose_pic_finish));
+                        tv_preview.setText(getString(R.string.preview_without_num));
+                    } else {
                         tv_preview.setText(String.format(getString(R.string.preview_with_num), currentPicNums));
                         btn_choose_finish.setText(String.format(getString(R.string.choose_pic_finish_with_num), currentPicNums, picNums));
-                    }else{
-                        picklist.remove(getImageDirectoryModelUrlFromMapById(holder.position));
-                        holder.iv_pick_or_not.setImageResource(R.drawable.image_not_chose);
-                        holder.v_gray_masking.setVisibility(View.GONE);
-                        currentPicNums--;
-                        if(currentPicNums == 0){
-                            btn_choose_finish.setTextColor(getResources().getColor(R.color.found_description_color));
-                            btn_choose_finish.setText(getString(R.string.choose_pic_finish));
-                            tv_preview.setText(getString(R.string.preview_without_num));
-                        }else {
-                            tv_preview.setText(String.format(getString(R.string.preview_with_num), currentPicNums));
-                            btn_choose_finish.setText(String.format(getString(R.string.choose_pic_finish_with_num), currentPicNums, picNums));
-                        }
                     }
+                }
 //                    adapter.notifyDataSetChanged();
-                    break;
-                default:
-                    break;
+
+            } else {
             }
         }
     }
