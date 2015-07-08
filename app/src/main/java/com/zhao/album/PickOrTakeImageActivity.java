@@ -775,6 +775,9 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
      * 根据id获取map中相对应的图片时间
      */
     private long getImageDirectoryModelDateFromMapById(int position){
+        if (allImages.size() ==0){
+            return System.currentTimeMillis();
+        }
         //如果是选择的全部图片
         if(currentShowPosition == -1){
             return allImages.get(position).date;
