@@ -1009,7 +1009,8 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         dialog.setTitle("结果");
         dialog.setContentView(textview);
         dialog.show();
-        picklist.clear();
+        if (picNums == 1)
+            picklist.clear();
 //        Intent data = new Intent();
 //        data.putExtra("data", list);
 //        setResult(RESULT_OK, data);
