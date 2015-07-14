@@ -246,7 +246,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         //计算每张图片应该显示的宽度
         perWidth = (((WindowManager) (AppContext.getInstance().getSystemService(Context.WINDOW_SERVICE))).getDefaultDisplay().getWidth() - CommonUtil.dip2px(this, 4))/3;
 
-        picNums = getIntent().getIntExtra(EXTRA_NUMS, 1);
+        picNums = getIntent().getIntExtra(EXTRA_NUMS, 9);
 
         if (picNums == 1){
             tv_preview.setVisibility(View.GONE);
