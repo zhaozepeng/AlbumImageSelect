@@ -71,6 +71,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
     private int currentTouchState = MotionEvent.ACTION_UP;
 
     private TextView tv_choose_image_directory;
+    private View v_line;
     private TextView tv_preview;
     private RelativeLayout rl_bottom;
     private RelativeLayout rl_date;
@@ -125,6 +126,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
 
         tv_choose_image_directory = (TextView) findViewById(R.id.tv_choose_image_directory);
         tv_preview = (TextView) findViewById(R.id.tv_preview);
+        v_line = findViewById(R.id.v_line);
         rl_bottom = (RelativeLayout) findViewById(R.id.rl_bottom);
         rl_bottom.setOnClickListener(this);
 
@@ -222,8 +224,6 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 returnDataAndClose();
             }
         });
-        btn_choose_finish.setText("完成");
-
     }
 
     protected void initData() {
@@ -246,7 +246,15 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         //计算每张图片应该显示的宽度
         perWidth = (((WindowManager) (AppContext.getInstance().getSystemService(Context.WINDOW_SERVICE))).getDefaultDisplay().getWidth() - CommonUtil.dip2px(this, 4))/3;
 
-        picNums = getIntent().getIntExtra(EXTRA_NUMS, 9);
+        picNums = getIntent().getIntExtra(EXTRA_NUMS, 1);
+
+        if (picNums == 1){
+            tv_preview.setVisibility(View.GONE);
+            v_line.setVisibility(View.GONE);
+            btn_choose_finish.setVisibility(View.GONE);
+        }else{
+            btn_choose_finish.setText("完成");
+        }
     }
 
 
@@ -527,6 +535,9 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 holder.iv_content = (ImageView) view.findViewById(R.id.iv_content);
                 holder.v_gray_masking = view.findViewById(R.id.v_gray_masking);
                 holder.iv_pick_or_not = (ImageView) view.findViewById(R.id.iv_pick_or_not);
+                if(picNums == 1){
+                    holder.iv_pick_or_not.setVisibility(View.GONE);
+                }
 
                 OnclickListenerWithHolder listener = new OnclickListenerWithHolder(holder);
                 holder.iv_content.setOnClickListener(listener);
@@ -859,16 +870,22 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
             int position = holder.position;
             int i = view.getId();
             if (i == R.id.iv_content) {
-                Intent intent = new Intent();
-                intent.setClass(PickOrTakeImageActivity.this, PickBigImagesActivity.class);
-                //TODO 这里由于涉及到intent传递的数据不能太大的问题，所以如果需要，这里需要进行另外的处理，写入到内存或者写入到文件中
-                intent.putExtra(PickBigImagesActivity.EXTRA_DATA, getAllImagesFromCurrentDirectory());
-                intent.putExtra(PickBigImagesActivity.EXTRA_ALL_PICK_DATA, picklist);
-                intent.putExtra(PickBigImagesActivity.EXTRA_CURRENT_PIC, position);
-                intent.putExtra(PickBigImagesActivity.EXTRA_LAST_PIC, picNums - currentPicNums);
-                intent.putExtra(PickBigImagesActivity.EXTRA_TOTAL_PIC, picNums);
-                startActivityForResult(intent, CODE_FOR_PIC_BIG);
-                AlbumBitmapCacheHelper.getInstance().releaseHalfSizeCache();
+                if (picNums > 1) {
+                    Intent intent = new Intent();
+                    intent.setClass(PickOrTakeImageActivity.this, PickBigImagesActivity.class);
+                    //TODO 这里由于涉及到intent传递的数据不能太大的问题，所以如果需要，这里需要进行另外的处理，写入到内存或者写入到文件中
+                    intent.putExtra(PickBigImagesActivity.EXTRA_DATA, getAllImagesFromCurrentDirectory());
+                    intent.putExtra(PickBigImagesActivity.EXTRA_ALL_PICK_DATA, picklist);
+                    intent.putExtra(PickBigImagesActivity.EXTRA_CURRENT_PIC, position);
+                    intent.putExtra(PickBigImagesActivity.EXTRA_LAST_PIC, picNums - currentPicNums);
+                    intent.putExtra(PickBigImagesActivity.EXTRA_TOTAL_PIC, picNums);
+                    startActivityForResult(intent, CODE_FOR_PIC_BIG);
+                    AlbumBitmapCacheHelper.getInstance().releaseHalfSizeCache();
+                }else{
+                    picklist.add(getImageDirectoryModelUrlFromMapById(holder.position));
+                    currentPicNums++;
+                    returnDataAndClose();
+                }
 
             } else if (i == R.id.iv_pick_or_not) {
                 toggleImageDirectoryModelStateFromMapById(position);
@@ -992,6 +1009,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         dialog.setTitle("结果");
         dialog.setContentView(textview);
         dialog.show();
+        picklist.clear();
 //        Intent data = new Intent();
 //        data.putExtra("data", list);
 //        setResult(RESULT_OK, data);
