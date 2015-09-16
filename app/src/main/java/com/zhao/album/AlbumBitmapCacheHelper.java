@@ -170,16 +170,13 @@ public class AlbumBitmapCacheHelper {
 //                        bitmap = MediaStore.Images.Thumbnails.getThumbnail(cr, Long.parseLong(objects[0].toString()),
 //                                MediaStore.Video.Thumbnails.MINI_KIND, options);
 //                    }else{
-                        try {
-                            bitmap = BitmapFactory.decodeFile(path, options);
-                        }catch (OutOfMemoryError error){
-                            bitmap = null;
-                        }
+                        bitmap = BitmapFactory.decodeFile(path, options);
+                        //获取之后，放入缓存，以便下次继续使用
                         if (bitmap != null && cache!=null) {
                             bitmap = centerSquareScaleBitmap(bitmap, ((bitmap.getWidth() > bitmap.getHeight()) ? bitmap.getHeight() : bitmap.getWidth()));
                         }
                         //第三步,如果缩放比例大于4，该图的加载会非常慢，所以将该图保存到临时目录下以便下次的快速加载
-                        if (options.inSampleSize>=4 && bitmap!=null) {
+                        if (options.inSampleSize >= 4) {
                             try {
                                 file = new File(tempPath);
                                 if (!file.exists())
@@ -239,7 +236,7 @@ public class AlbumBitmapCacheHelper {
         try {
             result = Bitmap.createBitmap(bitmap, xTopLeft, yTopLeft, edgeLength, edgeLength);
             bitmap.recycle();
-        } catch (OutOfMemoryError e) {
+        } catch (Exception e) {
             return result;
         }
 
