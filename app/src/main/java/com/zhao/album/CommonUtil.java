@@ -70,11 +70,11 @@ public class CommonUtil {
     public static String getDataPath() {
         String path;
         if (isExistSDcard())
-            path = Environment.getExternalStorageDirectory().getPath() + "/zhao";
+            path = Environment.getExternalStorageDirectory().getPath() + "/albumSelect";
         else
             path = AppContext.getInstance().getFilesDir().getPath();
         if (!path.endsWith("/"))
-            path = path + "/" + "temp/";
+            path = path + "/";
         return path;
     }
 

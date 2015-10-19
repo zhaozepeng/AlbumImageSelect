@@ -82,6 +82,9 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
     private LayoutInflater inflater = null;
     private GridViewAdapter adapter;
 
+    //拍照的文件的文件名
+    String tempPath = null;
+
     /** 选择文件夹的弹出框 */
 //    private PopupWindow window;
     private RelativeLayout rl_choose_directory;
@@ -406,6 +409,8 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 reverseanimation.start();
             }
         }else {
+            //离开此页面之后记住要清空cache内存
+            AlbumBitmapCacheHelper.getInstance().clearCache();
             super.onBackPressed();
         }
     }
@@ -600,12 +605,12 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         String name = "temp";
         if (!new File(CommonUtil.getDataPath()).exists())
             new File(CommonUtil.getDataPath()).mkdirs();
-        //临时文件的文件名
-        String tempPath = CommonUtil.getDataPath() + name + ".temp";
+        tempPath = CommonUtil.getDataPath() + name + ".jpg";
         File file = new File(tempPath);
         try {
-            if (!file.exists())
-                file.createNewFile();
+            if (file.exists())
+                file.delete();
+            file.createNewFile();
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -810,18 +815,6 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
     }
 
     /**
-     * 根据id获取map中相对应的图片的id
-     */
-    private long getImageDirectoryModelIdFromMapById(int position){
-        //如果是选择的全部图片
-        if(currentShowPosition == -1){
-            return allImages.get(position).id;
-        }else{
-            return imageDirectories.get(currentShowPosition).images.getImages().get(position).id;
-        }
-    }
-
-    /**
      * 转变该位置图片的选中状态
      * @param position
      */
@@ -839,20 +832,6 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                     model.isPicked = !model.isPicked;
             }
         }
-    }
-
-    /**
-     * 根据path获取map中相对应的图片选中状态
-     * @param path
-     */
-    private boolean getImageDirectoryModelStateFromMapById(String path){
-        //如果是选择的全部图片
-        for (SingleImageModel model : allImages){
-            if (model.path.equalsIgnoreCase(path)){
-                return model.isPicked;
-            }
-        }
-        return false;
     }
 
     /**
@@ -977,12 +956,17 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 break;
             case CODE_FOR_TAKE_PIC:
                 if (resultCode == RESULT_OK){
-                    String name = "temp";
-                    if (!new File(CommonUtil.getDataPath()).exists())
-                        new File(CommonUtil.getDataPath()).mkdirs();
                     //临时文件的文件名
-                    String tempPath = CommonUtil.getDataPath() + name + ".temp";
                     Toast.makeText(this, "拍照的图片 "+tempPath, Toast.LENGTH_LONG).show();
+
+                    //扫描最新的图片进相册
+                    Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    Uri uri = Uri.fromFile(new File(tempPath));
+                    intent.setData(uri);
+                    sendBroadcast(intent);
+
+                    //重新拉取最新数据库文件
+                    getAllImages();
                 }
                 break;
             default:
