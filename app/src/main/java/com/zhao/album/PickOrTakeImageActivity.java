@@ -1070,19 +1070,6 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         return null;
     }
 
-    private class ImageModel implements  Comparable<ImageModel>{
-        public String path;
-        public long date;
-        public long id;
-
-        @Override
-        public int compareTo(ImageModel imageModel) {
-            if(date == imageModel.date)
-                return 0;
-            return (date > imageModel.date)?-1:1;
-        }
-    }
-
     /**
      * 一个文件夹中的图片数据实体
      */
