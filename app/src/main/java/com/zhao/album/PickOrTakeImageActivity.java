@@ -274,6 +274,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 Cursor cursor = contentResolver.query(uri, null, MediaStore.Images.Media.MIME_TYPE + "=\"image/jpeg\" or " +
                         MediaStore.Images.Media.MIME_TYPE + "=\"image/png\"", null, MediaStore.Images.Media.DATE_MODIFIED+" desc");
                 if (cursor != null){
+                    allImages.clear();
                     while (cursor.moveToNext()){
                         SingleImageModel singleImageModel = new SingleImageModel();
                         singleImageModel.path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
