@@ -663,7 +663,10 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
 
         @Override
         public int getCount() {
-            return imageDirectories.size() + 1;
+            if (imageDirectories.size() == 0)
+                return 0;
+            else
+                return imageDirectories.size() + 1;
         }
 
         @Override
