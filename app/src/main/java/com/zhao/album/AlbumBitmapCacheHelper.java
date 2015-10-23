@@ -143,10 +143,10 @@ public class AlbumBitmapCacheHelper {
                         bitmap = BitmapFactory.decodeFile(path, options);
                     }
                 } else {
-                    //返回小图，第一步，从temp目录下取，如果取不到，
+                    //返回小图，第一步，从temp目录下取该图片指定大小的缓存，如果取不到，
                     // 第二步，计算samplesize,如果samplesize > 4,
                     // 第三步则将压缩后的图片存入temp目录下，以便下次快速取出
-                    String hash = CommonUtil.md5(path);
+                    String hash = CommonUtil.md5(path+"_"+width+"_"+height);
                     File file = new File(CommonUtil.getDataPath());
                     if (!file.exists())
                         file.mkdirs();
