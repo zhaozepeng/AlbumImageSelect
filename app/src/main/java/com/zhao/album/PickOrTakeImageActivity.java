@@ -1,13 +1,17 @@
 package com.zhao.album;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -17,6 +21,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -113,6 +119,7 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
     public static final int CODE_FOR_PIC_BIG = 1;
     public static final int CODE_FOR_PIC_BIG_PREVIEW = 2;
     public static final int CODE_FOR_TAKE_PIC = 3;
+    public static final int CODE_FOR_WRITE_PERMISSION = 100;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -232,14 +239,16 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
     protected void initData() {
         inflater = LayoutInflater.from(this);
 
-        allImages = new ArrayList<SingleImageModel>();
-        imageDirectories = new ArrayList<SingleImageDirectories>();
+        allImages = new ArrayList<>();
+        imageDirectories = new ArrayList<>();
 
         handler = new MyHandler(this);
         //默认显示全部图片
         currentShowPosition = -1;
         adapter = new GridViewAdapter();
+
         getAllImages();
+
         tv_choose_image_directory.setText(getString(R.string.all_pic));
         tv_preview.setText(getString(R.string.preview_without_num));
 
@@ -260,11 +269,25 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
         }
     }
 
+    /**
+     * 6.0版本之后需要动态申请权限
+     */
+    private void getAllImages(){
+        //使用兼容库就无需判断系统版本
+        int hasWriteContactsPermission = ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (hasWriteContactsPermission == PackageManager.PERMISSION_GRANTED) {
+            startGetImageThread();
+        }
+        //需要弹出dialog让用户手动赋予权限
+        else{
+            ActivityCompat.requestPermissions(PickOrTakeImageActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CODE_FOR_WRITE_PERMISSION);
+        }
+    }
 
     /**
      * 从手机中获取所有的手机图片
      */
-    private void getAllImages(){
+        private void startGetImageThread(){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -299,6 +322,38 @@ public class PickOrTakeImageActivity extends Activity implements View.OnClickLis
                 }
             }
         }).start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == CODE_FOR_WRITE_PERMISSION){
+            if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                &&grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                //用户同意使用write
+                startGetImageThread();
+            }else{
+                //用户不同意，向用户展示该权限作用
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    AlertDialog dialog = new AlertDialog.Builder(this)
+                            .setMessage("该相册需要赋予访问存储的权限，不开启将无法正常工作！")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            }).create();
+                    dialog.show();
+                    return;
+                }
+                finish();
+            }
+        }
     }
 
     @Override
